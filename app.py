@@ -111,7 +111,7 @@ def main():
                     fig_bar = px.bar(
                         x=sorted_narasumber_counts.values, 
                         y=sorted_narasumber_counts.index,
-                        orientation='h',
+                        orientation='v',
                         title="Top 10 Narasumber",
                         labels={'x': 'Frekuensi', 'y': 'Narasumber'}
                     )
