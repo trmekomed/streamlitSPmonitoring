@@ -13,9 +13,7 @@ def main():
         sp_df = load_dataset('DATASET SP')
         berita_df = load_dataset('DATASET BERITA')
 
-        # Debug: Tampilkan struktur awal
-        st.write("Kolom SP DataFrame:", sp_df.columns)
-        st.write("Kolom Berita DataFrame:", berita_df.columns)
+      
 
         # Konversi tanggal dengan robust
         sp_df['PUBLIKASI'] = pd.to_datetime(sp_df['PUBLIKASI'], errors='coerce')
