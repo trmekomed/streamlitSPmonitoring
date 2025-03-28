@@ -31,6 +31,7 @@ def main():
             max_value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date(),
             value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date()
         )
+
         end_date = st.sidebar.date_input(
             "Tanggal Akhir",
             min_value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date(),
@@ -49,6 +50,7 @@ def main():
             "Pilih Siaran Pers",
             options=filtered_sp['JUDUL'].unique() if not filtered_sp.empty else []
         )
+
         if selected_siaran_pers:
             filtered_sp = filtered_sp[filtered_sp['JUDUL'].isin(selected_siaran_pers)]
 
@@ -65,15 +67,12 @@ def main():
 
         with tab2:
             st.subheader("Visualisasi Detail")
-
             if not filtered_sp.empty:
                 # Pisahkan nama narasumber berdasarkan delimiter ";"
                 all_names = filtered_sp['NARASUMBER'].str.split(';').explode().str.strip()
-
                 # Hitung frekuensi kemunculan setiap nama
                 name_counts = all_names.value_counts().reset_index()
                 name_counts.columns = ['NARASUMBER', 'COUNT']
-
                 # Gabungkan kembali dengan DataFrame asli untuk visualisasi
                 exploded_sp = filtered_sp.copy()
                 exploded_sp = exploded_sp.drop(columns=['NARASUMBER'])
@@ -89,8 +88,8 @@ def main():
                     title="Scatter Plot NARASUMBER",
                     labels={'COUNT': 'Frekuensi Kemunculan', 'NARASUMBER': 'Nama NARASUMBER'}
                 )
-                fig.update_layout(height=600, width=1000)  # Perbesar area grafik
 
+                fig.update_layout(height=600, width=1000)  # Perbesar area grafik
                 st.plotly_chart(fig)
 
                 # Tampilkan data detail
@@ -98,6 +97,7 @@ def main():
                 st.dataframe(filtered_sp)
             else:
                 st.warning("Tidak ada data untuk ditampilkan di tab Detail.")
+
     except Exception as e:
         st.error(f"Terjadi kesalahan: {e}")
 
