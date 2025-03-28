@@ -13,10 +13,6 @@ def main():
         sp_df = load_dataset('DATASET SP')
         berita_df = load_dataset('DATASET BERITA')
 
-        # Debugging: Check if dataframes are loaded correctly
-        st.write("SP DataFrame Columns:", sp_df.columns)
-        st.write("Berita DataFrame Columns:", berita_df.columns)
-
         # Konversi tanggal dengan robust
         sp_df['PUBLIKASI'] = pd.to_datetime(sp_df['PUBLIKASI'], errors='coerce')
         berita_df['Tanggal'] = pd.to_datetime(berita_df['Tanggal'], errors='coerce')
@@ -66,8 +62,7 @@ def main():
             col2.metric("Total Berita", len(berita_df) if not berita_df.empty else 0)
             col3.metric("Total Media", berita_df['Sumber Media'].nunique() if 'Sumber Media' in berita_df.columns and not berita_df.empty else 0)
             
-            # Debugging: Check NARASUMBER availability
-            st.write("Columns in filtered_sp:", filtered_sp.columns)
+         
             
             # Add null check and debug information for NARASUMBER
             if 'NARASUMBER' in filtered_sp.columns:
@@ -84,8 +79,7 @@ def main():
                     st.warning("NARASUMBER column is missing from the dataset")
                     return
 
-                # Debugging: Print first few rows of NARASUMBER
-                st.write("First few NARASUMBER values:", filtered_sp['NARASUMBER'].head())
+               
 
                 # Pisahkan nama narasumber berdasarkan delimiter ";"
                 # Add error handling and debugging
