@@ -13,10 +13,6 @@ def main():
         sp_df = load_dataset('DATASET SP')
         berita_df = load_dataset('DATASET BERITA')
 
-        # Debugging: Check if dataframes are loaded correctly
-        st.write("SP DataFrame Columns:", sp_df.columns)
-        st.write("Berita DataFrame Columns:", berita_df.columns)
-
         # Konversi tanggal dengan robust
         sp_df['PUBLIKASI'] = pd.to_datetime(sp_df['PUBLIKASI'], errors='coerce')
         berita_df['Tanggal'] = pd.to_datetime(berita_df['Tanggal'], errors='coerce')
@@ -66,10 +62,6 @@ def main():
             col2.metric("Total Berita", len(berita_df) if not berita_df.empty else 0)
             col3.metric("Total Media", berita_df['Sumber Media'].nunique() if 'Sumber Media' in berita_df.columns and not berita_df.empty else 0)
             
-            # Debugging: Check NARASUMBER availability
-            st.write("Columns in filtered_sp:", filtered_sp.columns)
-            
-            # Add null check and debug information for NARASUMBER
             if 'NARASUMBER' in filtered_sp.columns:
                 col4.metric("Total NARASUMBER", filtered_sp['NARASUMBER'].nunique() if not filtered_sp['NARASUMBER'].isnull().all() else 0)
             else:
@@ -84,44 +76,40 @@ def main():
                     st.warning("NARASUMBER column is missing from the dataset")
                     return
 
-                # Debugging: Print first few rows of NARASUMBER
-                st.write("First few NARASUMBER values:", filtered_sp['NARASUMBER'].head())
-
                 # Pisahkan nama narasumber berdasarkan delimiter ";"
-                # Add error handling and debugging
                 try:
                     # Handle potential None or NaN values
                     filtered_sp['NARASUMBER'] = filtered_sp['NARASUMBER'].fillna('')
                     
-                    all_names = filtered_sp['NARASUMBER'].str.split(';').explode().str.strip()
+                    # Split and explode the NARASUMBER column
+                    narasumber_df = filtered_sp.copy()
+                    narasumber_df['NARASUMBER'] = narasumber_df['NARASUMBER'].str.split(';')
+                    narasumber_exploded = narasumber_df.explode('NARASUMBER')
                     
-                    # Remove empty strings
-                    all_names = all_names[all_names != '']
+                    # Clean and count narasumbers
+                    narasumber_exploded['NARASUMBER'] = narasumber_exploded['NARASUMBER'].str.strip()
+                    narasumber_counts = narasumber_exploded[narasumber_exploded['NARASUMBER'] != ''].groupby(['NARASUMBER', 'PUBLIKASI']).size().reset_index(name='COUNT')
 
-                    # Debugging: Check names
-                    st.write("Unique Names:", all_names.unique())
+                    # Create scatter plot with dynamic width and date on x-axis
+                    fig = px.scatter(
+                        narasumber_counts, 
+                        x='PUBLIKASI', 
+                        y='NARASUMBER',
+                        size='COUNT',
+                        title="Narasumber Appearances Over Time",
+                        labels={'PUBLIKASI': 'Publication Date', 'NARASUMBER': 'Narasumber', 'COUNT': 'Frequency'}
+                    )
+                    
+                    # Remove legend and make plot responsive
+                    fig.update_layout(
+                        showlegend=False,
+                        autosize=True,
+                        height=600,
+                        width=None,  # This will make the plot responsive to container width
+                    )
 
-                    # Hitung frekuensi kemunculan setiap nama
-                    name_counts = all_names.value_counts().reset_index()
-                    name_counts.columns = ['NARASUMBER', 'COUNT']
-
-                    # Scatter plot dengan ukuran lingkaran sesuai frekuensi dan warna berbeda untuk tiap nama
-                    if not name_counts.empty:
-                        fig = px.scatter(
-                            name_counts,
-                            x='COUNT',
-                            y='NARASUMBER',
-                            size='COUNT',
-                            color='NARASUMBER',
-                            title="Scatter Plot NARASUMBER",
-                            labels={'COUNT': 'Frekuensi Kemunculan', 'NARASUMBER': 'Nama NARASUMBER'}
-                        )
-                        fig.update_layout(height=600, width=1000)  # Perbesar area grafik
-
-                        st.plotly_chart(fig)
-                    else:
-                        st.warning("Tidak ada data narasumber untuk divisualisasikan")
-
+                    st.plotly_chart(fig, use_container_width=True)
+                    
                     # Tampilkan data detail
                     st.subheader("Data Siaran Pers")
                     st.dataframe(filtered_sp)
