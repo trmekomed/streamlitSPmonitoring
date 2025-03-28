@@ -61,7 +61,7 @@ def main():
             col1.metric("Total Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
             col2.metric("Total Berita", len(berita_df) if not berita_df.empty else 0)
             col3.metric("Total Media", berita_df['Sumber Media'].nunique() if 'Sumber Media' in berita_df.columns and not berita_df.empty else 0)
-            col4.metric("Total Narasumber", filtered_sp['NARASUMBER'].nunique() if 'NARASUMBER' in filtered_sp.columns and not filtered_sp.empty else 0)
+            col4.metric("Total NARASUMBER", filtered_sp['NARASUMBER'].nunique() if 'NARASUMBER' in filtered_sp.columns and not filtered_sp.empty else 0)
 
         with tab2:
             st.subheader("Visualisasi Detail")
@@ -86,8 +86,8 @@ def main():
                     y='NARASUMBER',
                     size='COUNT',
                     color='NARASUMBER',
-                    title="Scatter Plot Narasumber",
-                    labels={'COUNT': 'Frekuensi Kemunculan', 'NARASUMBER': 'Nama Narasumber'}
+                    title="Scatter Plot NARASUMBER",
+                    labels={'COUNT': 'Frekuensi Kemunculan', 'NARASUMBER': 'Nama NARASUMBER'}
                 )
                 fig.update_layout(height=600, width=1000)  # Perbesar area grafik
 
