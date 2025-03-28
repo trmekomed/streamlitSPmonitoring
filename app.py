@@ -105,9 +105,6 @@ def main():
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # Horizontal Bar Chart for Top 10 Narasumbers, sorted in descending order
-                    sorted_narasumber_counts = narasumber_total_counts.sort_values(ascending=True).head(10)
-    
                     # Horizontal Bar Chart for Top 10 Narasumbers
                     fig_bar = px.bar(
                         x=narasumber_total_counts.head(10).values, 
