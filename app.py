@@ -52,10 +52,7 @@ def main():
         if selected_siaran_pers:
             filtered_sp = filtered_sp[filtered_sp['JUDUL'].isin(selected_siaran_pers)]
 
-        # Tab
-        tab1, tab2 = st.tabs(["Overview", "Detail"])
-
-        with tab1:
+       
             # Scorecard
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Total Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
@@ -70,7 +67,7 @@ def main():
             else:
                 st.warning("NARASUMBER column not found in the dataset")
 
-        with tab2:
+      
             st.subheader("Visualisasi Detail")
 
             if not filtered_sp.empty:
