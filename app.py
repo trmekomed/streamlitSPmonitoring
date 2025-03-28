@@ -13,7 +13,7 @@ def clean_narasumber_name(name):
     """
     name = name.strip()
     if ',' in name:
-        return name.split(',')[0].strip()
+        return name.split(',')[1].strip()
     return name
 
 def main():
