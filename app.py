@@ -49,14 +49,14 @@ def main():
             (sp_df['PUBLIKASI'].dt.date <= end_date)
         ]
 
-        # Filter Siaran Pers berdasarkan pilihan judul
+        # Filter Siaran Pers berdasarkan pilihan JUDUL
         selected_siaran_pers = st.sidebar.multiselect(
             "Pilih Siaran Pers",
-            options=filtered_sp['Judul'].unique() if not filtered_sp.empty else []
+            options=filtered_sp['JUDUL'].unique() if not filtered_sp.empty else []
         )
 
         if selected_siaran_pers:
-            filtered_sp = filtered_sp[filtered_sp['Judul'].isin(selected_siaran_pers)]
+            filtered_sp = filtered_sp[filtered_sp['JUDUL'].isin(selected_siaran_pers)]
 
         # Tab
         tab1, tab2 = st.tabs(["Overview", "Detail"])
@@ -65,17 +65,17 @@ def main():
             # Scorecard
             col1, col2, col3, col4 = st.columns(4)
 
-            col1.metric("Total Siaran Pers", filtered_sp['Judul'].nunique() if not filtered_sp.empty else 0)
+            col1.metric("Total Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
             col2.metric("Total Berita", len(berita_df) if not berita_df.empty else 0)
             col3.metric("Total Media", berita_df['Sumber Media'].nunique() if 'Sumber Media' in berita_df.columns and not berita_df.empty else 0)
-            col4.metric("Total Narasumber", filtered_sp['Narasumber'].nunique() if 'Narasumber' in filtered_sp.columns and not filtered_sp.empty else 0)
+            col4.metric("Total NARASUMBER", filtered_sp['NARASUMBER'].nunique() if 'NARASUMBER' in filtered_sp.columns and not filtered_sp.empty else 0)
 
         with tab2:
             st.subheader("Visualisasi Detail")
             
             if not filtered_sp.empty:
-                # Contoh visualisasi scatter plot narasumber vs publikasi
-                fig = px.scatter(filtered_sp, x='PUBLIKASI', y='Narasumber', title="Scatter Plot Narasumber")
+                # Contoh visualisasi scatter plot NARASUMBER vs publikasi
+                fig = px.scatter(filtered_sp, x='PUBLIKASI', y='NARASUMBER', title="Scatter Plot NARASUMBER")
                 st.plotly_chart(fig)
                 
                 # Tampilkan data detail
