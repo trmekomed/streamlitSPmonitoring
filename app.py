@@ -106,12 +106,12 @@ def main():
                 
                 with col1:
                     # Horizontal Bar Chart for Top 10 Narasumbers, sorted in descending order
-                    sorted_narasumber_counts = narasumber_total_counts.sort_values(ascending=False).head(5)
+                    sorted_narasumber_counts = narasumber_total_counts.sort_values(ascending=False).head(10)
     
                     fig_bar = px.bar(
                         x=sorted_narasumber_counts.values, 
                         y=sorted_narasumber_counts.index,
-                        orientation='v',
+                        orientation='h',
                         title="Top 10 Narasumber",
                         labels={'x': 'Frekuensi', 'y': 'Narasumber'}
                     )
