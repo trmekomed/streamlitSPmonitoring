@@ -18,11 +18,11 @@ def main():
         st.write("Kolom Berita DataFrame:", berita_df.columns)
         
         # Konversi tanggal dengan robust
-        sp_df['Publikasi'] = pd.to_datetime(sp_df['Publikasi'], errors='coerce')
+        sp_df['PUBLIKASI'] = pd.to_datetime(sp_df['PUBLIKASI'], errors='coerce')
         berita_df['Tanggal'] = pd.to_datetime(berita_df['Tanggal'], errors='coerce')
         
         # Sort data dari terbaru
-        sp_df = sp_df.sort_values('Publikasi', ascending=False)
+        sp_df = sp_df.sort_values('PUBLIKASI', ascending=False)
         berita_df = berita_df.sort_values('Tanggal', ascending=False)
         
         # Sidebar untuk filter
@@ -30,19 +30,23 @@ def main():
         
         # Filter rentang waktu
         start_date = st.sidebar.date_input(
-            "Tanggal Mulai", 
-            min_value=sp_df['Publikasi'].min().date() if not sp_df.empty else datetime.now().date(), 
-            max_value=sp_df['Publikasi'].max().date() if not sp_df.empty else datetime.now().date(), 
-            value=sp_df['Publikasi'].min().date() if not sp_df.empty else datetime.now().date()
+            "Tanggal Mulai",
+            min_value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date(),
+            max_value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date(),
+            value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date()
         )
-        
+
         end_date = st.sidebar.date_input(
-            "Tanggal Akhir", 
-            min_value=sp_df['Publikasi'].min().date() if not sp_df.empty else datetime.now().date(), 
-            max_value=sp_df['Publikasi'].max().date() if not sp_df.empty else datetime.now().date(), 
-            value=sp_df['Publikasi'].max().date() if not sp_df.empty else datetime.now().date()
+            "Tanggal Akhir",
+            min_value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date(),
+            max_value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date(),
+            value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date()
         )
-        
+
+        filtered_sp = sp_df[
+            (sp_df['PUBLIKASI'].dt.date >= start_date) &
+            (sp_df['PUBLIKASI'].dt.date <= end_date)
+     
         # Filter Siaran Pers
         selected_siaran_pers = st.sidebar.multiselect(
             "Pilih Siaran Pers", 
@@ -51,8 +55,8 @@ def main():
         
         # Filtering data
         filtered_sp = sp_df[
-            (sp_df['Publikasi'].dt.date >= start_date) & 
-            (sp_df['Publikasi'].dt.date <= end_date)
+            (sp_df['PUBLIKASI'].dt.date >= start_date) & 
+            (sp_df['PUBLIKASI'].dt.date <= end_date)
         ]
         
         if selected_siaran_pers:
