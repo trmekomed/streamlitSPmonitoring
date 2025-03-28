@@ -13,9 +13,20 @@ def main():
     sp_df = load_dataset('DATASET SP')
     berita_df = load_dataset('DATASET BERITA')
     
-    # Konversi kolom tanggal
-    sp_df['Publikasi'] = pd.to_datetime(sp_df['Publikasi'], errors='coerce')
-    berita_df['Tanggal'] = pd.to_datetime(berita_df['Tanggal'], errors='coerce')
+    # Debugging: Tampilkan struktur DataFrame
+    st.write("Kolom SP DataFrame:", sp_df.columns)
+    st.write("Kolom Berita DataFrame:", berita_df.columns)
+    
+    # Konversi kolom tanggal dengan fungsi safe
+    if 'Publikasi' in sp_df.columns:
+        sp_df['Publikasi'] = sp_df['Publikasi'].apply(safe_convert_date)
+    
+    if 'Tanggal' in berita_df.columns:
+        berita_df['Tanggal'] = berita_df['Tanggal'].apply(safe_convert_date)
+    
+    # Tambahkan pengecekan data
+    st.write("Jumlah baris SP:", len(sp_df))
+    st.write("Jumlah baris Berita:", len(berita_df))
     
     # Sort data dari terbaru
     sp_df = sp_df.sort_values('Publikasi', ascending=False)
