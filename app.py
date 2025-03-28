@@ -2,35 +2,43 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
-from data_loader import load_dataset, process_dataset
 
-# Fungsi utama Streamlit
+# Pastikan fungsi-fungsi ini tersedia
+def load_dataset(sheet_name):
+    """
+    Fungsi sementara untuk load dataset
+    Nanti diganti dengan implementasi sebenarnya
+    """
+    try:
+        # Contoh dummy data
+        return pd.DataFrame({
+            'Publikasi': pd.date_range(start='2023-01-01', periods=10),
+            'Judul': [f'Judul {i}' for i in range(10)],
+            'Narasumber': [f'Narasumber {i}' for i in range(10)]
+        })
+    except Exception as e:
+        st.error(f"Gagal membuat dummy data: {e}")
+        return pd.DataFrame()
+
+def process_dataset(df, column_name):
+    """
+    Fungsi dummy untuk proses dataset
+    """
+    return df, pd.Series()
+
 def main():
     st.set_page_config(layout="wide", page_title="Press Monitoring Dashboard")
     st.title("Press Monitoring Dashboard")
     
-    # Load data
+    # Load data dengan fungsi dummy
     sp_df = load_dataset('DATASET SP')
     berita_df = load_dataset('DATASET BERITA')
     
-    # Debugging: Tampilkan struktur DataFrame
-    st.write("Kolom SP DataFrame:", sp_df.columns)
-    st.write("Kolom Berita DataFrame:", berita_df.columns)
-    
-    # Konversi kolom tanggal dengan fungsi safe
-    if 'Publikasi' in sp_df.columns:
-        sp_df['Publikasi'] = sp_df['Publikasi'].apply(safe_convert_date)
-    
-    if 'Tanggal' in berita_df.columns:
-        berita_df['Tanggal'] = berita_df['Tanggal'].apply(safe_convert_date)
-    
-    # Tambahkan pengecekan data
-    st.write("Jumlah baris SP:", len(sp_df))
-    st.write("Jumlah baris Berita:", len(berita_df))
+    # Konversi kolom tanggal
+    sp_df['Publikasi'] = pd.to_datetime(sp_df['Publikasi'], errors='coerce')
     
     # Sort data dari terbaru
     sp_df = sp_df.sort_values('Publikasi', ascending=False)
-    berita_df = berita_df.sort_values('Tanggal', ascending=False)
     
     # Sidebar untuk filter
     st.sidebar.header("Filter")
@@ -68,7 +76,7 @@ def main():
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Total Siaran Pers", filtered_sp['Judul'].nunique())
         col2.metric("Total Berita", len(berita_df))
-        col3.metric("Total Media", berita_df['Sumber Media'].nunique())
+        col3.metric("Total Media", 0)  # Dummy value
         col4.metric("Total Narasumber", filtered_sp['Narasumber'].nunique())
     
     with tab2:
