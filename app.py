@@ -262,36 +262,6 @@ def main():
             value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date()
         )
 
-# apus dari sini ---------------------------------------
-
-        # Convert date range to a slider
-        if not sp_df.empty:
-            min_date = sp_df['PUBLIKASI'].min().date()
-            max_date = sp_df['PUBLIKASI'].max().date()
-        else:
-            min_date = datetime.now().date()
-            max_date = datetime.now().date()
-
-        # Calculate the number of days between min and max dates
-        date_range = (max_date - min_date).days
-
-        # Create slider for date range selection
-        days_slider = st.sidebar.slider(
-            "Rentang Waktu",
-            0, date_range, (0, date_range),
-            format=None
-        )
-
-        # Convert slider values back to dates
-        start_date = min_date + datetime.timedelta(days=days_slider[0])
-        end_date = min_date + datetime.timedelta(days=days_slider[1])
-
-        # Display selected dates for user reference
-        st.sidebar.write(f"Tanggal Mulai: {start_date.strftime('%d %b %Y')}")
-        st.sidebar.write(f"Tanggal Akhir: {end_date.strftime('%d %b %Y')}")
-
-# apus sampe sini ---------------------------------------
-
         # Filter Siaran Pers berdasarkan rentang waktu
         filtered_sp = sp_df[
             (sp_df['PUBLIKASI'].dt.date >= start_date) &
