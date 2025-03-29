@@ -101,25 +101,25 @@ def main():
                 # Calculate total count for each narasumber
                 narasumber_total_counts = narasumber_exploded[narasumber_exploded['CLEAN_NARASUMBER'] != '']['CLEAN_NARASUMBER'].value_counts()
 
-                # Pastikan PUBLIKASI adalah tipe datetime
-    			if not pd.api.types.is_datetime64_any_dtype(narasumber_exploded['PUBLIKASI']):
-    				narasumber_exploded['PUBLIKASI'] = pd.to_datetime(narasumber_exploded['PUBLIKASI'])
+        # Pastikan PUBLIKASI adalah tipe datetime
+        if not pd.api.types.is_datetime64_any_dtype(narasumber_exploded['PUBLIKASI']):
+	    narasumber_exploded['PUBLIKASI'] = pd.to_datetime(narasumber_exploded['PUBLIKASI'])
 
-				# Tambahkan kolom Week untuk mengelompokkan berdasarkan minggu
-				narasumber_exploded['Week'] = narasumber_exploded['PUBLIKASI'].dt.to_period('W')
-				narasumber_exploded['Week_start'] = narasumber_exploded['Week'].dt.start_time
-				narasumber_exploded['Week_end'] = narasumber_exploded['Week'].dt.end_time
+        # Tambahkan kolom Week untuk mengelompokkan berdasarkan minggu
+        narasumber_exploded['Week'] = narasumber_exploded['PUBLIKASI'].dt.to_period('W')
+        narasumber_exploded['Week_start'] = narasumber_exploded['Week'].dt.start_time
+        narasumber_exploded['Week_end'] = narasumber_exploded['Week'].dt.end_time
 
-				# Hitung kemunculan per narasumber per minggu
-				narasumber_counts = narasumber_exploded[narasumber_exploded['CLEAN_NARASUMBER'] != ''].groupby(['CLEAN_NARASUMBER', 'Week', 'Week_start', 'Week_end']).size().reset_index(name='COUNT')
+        # Hitung kemunculan per narasumber per minggu
+        narasumber_counts = narasumber_exploded[narasumber_exploded['CLEAN_NARASUMBER'] != ''].groupby(['CLEAN_NARASUMBER', 'Week', 'Week_start', 'Week_end']).size().reset_index(name='COUNT')
 
-				# Buat label kustom untuk hover
-				narasumber_counts['custom_label'] = (
-    				narasumber_counts['CLEAN_NARASUMBER'] + '<br>' + 
-				    'rentang=[' + narasumber_counts['Week_start'].dt.strftime('%d-%m-%Y') + ' - ' + 
-				    narasumber_counts['Week_end'].dt.strftime('%d-%m-%Y') + ']<br>' +
-				    'kemunculan=[' + narasumber_counts['COUNT'].astype(str) + '] kali'
-				)
+        # Buat label kustom untuk hover
+        narasumber_counts['custom_label'] = (
+        narasumber_counts['CLEAN_NARASUMBER'] + '<br>' + 
+        'rentang=[' + narasumber_counts['Week_start'].dt.strftime('%d-%m-%Y') + ' - ' + 
+        narasumber_counts['Week_end'].dt.strftime('%d-%m-%Y') + ']<br>' +
+        'kemunculan=[' + narasumber_counts['COUNT'].astype(str) + '] kali'
+        )
 
                 # Top 10 Narasumber Bar Chart
                 col1, col2 = st.columns(2)
