@@ -18,7 +18,7 @@ def clean_narasumber_name(name):
 
 def main():
     st.set_page_config(layout="wide", page_title="Press Monitoring Dashboard")
-    st.title("Press Monitoring Dashboard")
+    st.title("Dashboard Monitoring Siaran Pers Komdigi")
 
     # Load data
     try:
@@ -64,15 +64,16 @@ def main():
         if selected_siaran_pers:
             filtered_sp = filtered_sp[filtered_sp['JUDUL'].isin(selected_siaran_pers)]
 
+        st.header("Overview")
         # Overview - Scorecard
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Total Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
-        col2.metric("Total Berita", len(berita_df) if not berita_df.empty else 0)
-        col3.metric("Total Media", berita_df['Sumber Media'].nunique() if 'Sumber Media' in berita_df.columns and not berita_df.empty else 0)
+        col1.metric("Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
+        col2.metric("Berita", len(berita_df) if not berita_df.empty else 0)
+        col3.metric("Media", berita_df['Sumber Media'].nunique() if 'Sumber Media' in berita_df.columns and not berita_df.empty else 0)
         
         # Add null check and debug information for NARASUMBER
         if 'NARASUMBER' in filtered_sp.columns:
-            col4.metric("Total NARASUMBER", filtered_sp['NARASUMBER'].nunique() if not filtered_sp['NARASUMBER'].isnull().all() else 0)
+            col4.metric("Narasumber", filtered_sp['NARASUMBER'].nunique() if not filtered_sp['NARASUMBER'].isnull().all() else 0)
         else:
             st.warning("NARASUMBER column not found in the dataset")
 
