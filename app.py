@@ -18,8 +18,8 @@ def clean_narasumber_name(name):
 
 def main():
     st.set_page_config(layout="wide", page_title="v1.1 Dashboard Monitoring")
-    st.title("DASHBOARD MONITORING v1.1 𓀛🇮🇩")
-    st.write("🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩")
+    st.title("DASHBOARD MONITORING 𓀛")
+    st.write("Dashboard ini dalam pengembangan, saat ini data yang disajikan adalah Siaran Pers yang didiseminasi oleh Komdigi dan Monitoring pemuatan beritanya")
 
     # Load data
     try:
