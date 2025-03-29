@@ -71,7 +71,7 @@ def main():
         col1.metric("Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
         col2.metric("Berita", len(berita_df) if not berita_df.empty else 0)
         col3.metric("Media", berita_df['Sumber Media'].nunique() if 'Sumber Media' in berita_df.columns and not berita_df.empty else 0)
-        
+
         # Add null check and debug information for NARASUMBER
         if 'NARASUMBER' in filtered_sp.columns:
             col4.metric("Narasumber", filtered_sp['NARASUMBER'].nunique() if not filtered_sp['NARASUMBER'].isnull().all() else 0)
@@ -80,7 +80,7 @@ def main():
 
         # Create tabs after the overview section
         tab1, tab2 = st.tabs(["Siaran Pers", "Pemberitaan"])
-        
+
         # Tab 1: Siaran Pers (all current visualizations)
         with tab1:
 
@@ -93,16 +93,16 @@ def main():
                 try:
                     # Handle potential None or NaN values
                     filtered_sp['NARASUMBER'] = filtered_sp['NARASUMBER'].fillna('')
-                    
+
                     # Split and explode the NARASUMBER column
                     narasumber_df = filtered_sp.copy()
                     narasumber_df['NARASUMBER'] = narasumber_df['NARASUMBER'].str.split(';')
                     narasumber_exploded = narasumber_df.explode('NARASUMBER')
-                    
+
                     # Clean and count narasumbers
                     narasumber_exploded['NARASUMBER'] = narasumber_exploded['NARASUMBER'].str.strip()
                     narasumber_exploded['CLEAN_NARASUMBER'] = narasumber_exploded['NARASUMBER'].apply(clean_narasumber_name)
-                    
+
                     # Calculate total count for each narasumber
                     narasumber_total_counts = narasumber_exploded[narasumber_exploded['CLEAN_NARASUMBER'] != '']['CLEAN_NARASUMBER'].value_counts()
 
@@ -128,11 +128,11 @@ def main():
 
                     # Top 10 Narasumber Bar Chart
                     col1, col2 = st.columns(2)
-                    
+
                     with col1:
                         # Horizontal Bar Chart for Top 10 Narasumbers, sorted in descending order
                         sorted_narasumber_counts = narasumber_total_counts.sort_values(ascending=False).head(10)
-        
+
                         fig_bar = px.bar(
                             x=sorted_narasumber_counts.values, 
                             y=sorted_narasumber_counts.index,
@@ -146,7 +146,7 @@ def main():
                             height=400
                         )
                         st.plotly_chart(fig_bar, use_container_width=True)
-                    
+
                     with col2:
                         # Timeline Series of Press Releases
                         sp_timeline = filtered_sp.groupby(filtered_sp['PUBLIKASI'].dt.date).size().reset_index(name='COUNT')
@@ -193,7 +193,7 @@ def main():
 
                     # Urutkan berdasarkan total kemunculan
                     narasumber_total_counts = narasumber_counts.groupby('CLEAN_NARASUMBER')['COUNT'].sum().sort_values(ascending=False)
-                    
+
                     fig_scatter.update_yaxes(
                         categoryorder='array', 
                         categoryarray=narasumber_total_counts.index.tolist()[::-1]
@@ -207,16 +207,16 @@ def main():
                     )
 
                     st.plotly_chart(fig_scatter, use_container_width=True)
-                    
+
                     # Tampilkan data detail
                     st.subheader("Data Siaran Pers")
                     st.dataframe(filtered_sp)
-                
+
                 except Exception as name_error:
                     st.error(f"Error processing NARASUMBER: {name_error}")
             else:
                 st.warning("Tidak ada data untuk ditampilkan.")
-        
+
         # Tab 2: Pemberitaan (empty for now)
         with tab2:
             pemberitaan_tab(berita_df, sp_df)
@@ -225,16 +225,16 @@ def main():
 
 def pemberitaan_tab(berita_df, sp_df):
     st.subheader("📰 Analisis Pemberitaan")
-    
+
     if not berita_df.empty and not sp_df.empty:
         try:
             # Ensure date columns are datetime
             berita_df['Tanggal'] = pd.to_datetime(berita_df['Tanggal'], errors='coerce')
-            
+
             # 1. Media Coverage Metrics
             st.subheader("Media Coverage")
             col1, col2 = st.columns(2)
-            
+
             with col1:
                 # Top Media Sources by Volume
                 media_counts = berita_df['Sumber Media'].value_counts().head(10)
@@ -247,7 +247,7 @@ def pemberitaan_tab(berita_df, sp_df):
                 )
                 fig_media.update_layout(height=400)
                 st.plotly_chart(fig_media, use_container_width=True)
-            
+
             with col2:
                 # Media Coverage Timeline
                 timeline = berita_df.groupby(berita_df['Tanggal'].dt.date).size().reset_index(name='COUNT')
@@ -260,10 +260,10 @@ def pemberitaan_tab(berita_df, sp_df):
                 )
                 fig_timeline.update_layout(height=400)
                 st.plotly_chart(fig_timeline, use_container_width=True)
-            
+
             # 2. Press Release Impact Analysis
             st.subheader("Analisis Dampak Siaran Pers")
-            
+
             # Match press releases with news coverage
             # We'll create a simplified matching by checking if the news date is within 3 days after press release
             merged_data = []
@@ -271,26 +271,26 @@ def pemberitaan_tab(berita_df, sp_df):
                 sp_date = sp_row['PUBLIKASI']
                 if pd.isna(sp_date):
                     continue
-                    
+
                 sp_title = sp_row['JUDUL']
                 # Find news within 3 days after the press release
                 news_count = len(berita_df[(berita_df['Tanggal'] >= sp_date) & 
                                           (berita_df['Tanggal'] <= sp_date + pd.Timedelta(days=3))])
-                
+
                 merged_data.append({
                     'Tanggal_SP': sp_date,
                     'Judul_SP': sp_title,
                     'Jumlah_Berita': news_count
                 })
-                
+
             impact_df = pd.DataFrame(merged_data)
-            
+
             if not impact_df.empty:
                 # Sort by impact (news count)
                 impact_df = impact_df.sort_values('Jumlah_Berita', ascending=False)
-                
+
                 col1, col2 = st.columns(2)
-                
+
                 with col1:
                     # Top Press Releases by Media Coverage
                     fig_impact = px.bar(
@@ -303,7 +303,7 @@ def pemberitaan_tab(berita_df, sp_df):
                     )
                     fig_impact.update_layout(height=500)
                     st.plotly_chart(fig_impact, use_container_width=True)
-                
+
                 with col2:
                     # Time to Coverage Analysis
                     # Create a scatter plot showing relationship between press release date and volume of coverage
@@ -318,14 +318,14 @@ def pemberitaan_tab(berita_df, sp_df):
                     )
                     fig_time.update_layout(height=500)
                     st.plotly_chart(fig_time, use_container_width=True)
-            
+
             # 3. Media Source Distribution
             st.subheader("Distribusi Sumber Media")
-            
+
             # Create a treemap visualization of media sources
             media_tree = berita_df['Sumber Media'].value_counts().reset_index()
             media_tree.columns = ['Media', 'Count']
-            
+
             fig_tree = px.treemap(
                 media_tree,
                 path=['Media'],
@@ -333,18 +333,18 @@ def pemberitaan_tab(berita_df, sp_df):
                 title="Distribusi Pemberitaan berdasarkan Sumber Media"
             )
             st.plotly_chart(fig_tree, use_container_width=True)
-            
+
             # 4. Data Table with News Details
             st.subheader("Detail Pemberitaan")
-            
+
             # Create a filterable table with news data
             st.dataframe(berita_df)
-            
+
         except Exception as e:
             st.error(f"Error in pemberitaan analysis: {e}")
     else:
         st.warning("Tidak ada data berita untuk ditampilkan.")
-    
+
     except Exception as e:
         st.error(f"Terjadi kesalahan: {e}")
 
