@@ -17,8 +17,9 @@ def clean_narasumber_name(name):
     return name
 
 def main():
-    st.set_page_config(layout="wide", page_title="Press Monitoring Dashboard")
-    st.title("Dashboard Monitoring Siaran Pers Komdigi")
+    st.set_page_config(layout="wide", page_title="v1.1 Dashboard Monitoring")
+    st.title("DASHBOARD MONITORING v1.1 𓀛🇮🇩")
+    st.write("🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩🇮🇩")
 
     # Load data
     try:
@@ -64,7 +65,7 @@ def main():
         if selected_siaran_pers:
             filtered_sp = filtered_sp[filtered_sp['JUDUL'].isin(selected_siaran_pers)]
 
-        st.header("Overview")
+        st.subheader("💡 Overview")
         # Overview - Scorecard
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
@@ -78,7 +79,7 @@ def main():
             st.warning("NARASUMBER column not found in the dataset")
 
         # Visualisasi Detail
-        st.subheader("Visualisasi Detail")
+        st.subheader("🔎 Sebaran")
 
         if not filtered_sp.empty:
             # Check if NARASUMBER column exists
