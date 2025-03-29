@@ -83,8 +83,6 @@ def main():
         
         # Tab 1: Siaran Pers (all current visualizations)
         with tab1:
-            # Visualisasi Detail
-            st.subheader("🔎 Sebaran")
 
             if not filtered_sp.empty:
                 # Check if NARASUMBER column exists
@@ -221,7 +219,131 @@ def main():
         
         # Tab 2: Pemberitaan (empty for now)
         with tab2:
-            st.info("Konten untuk tab Pemberitaan akan segera hadir.")
+            pemberitaan_tab(berita_df, sp_df)
+
+            # Add this code inside the 'with tab2:' section in your main() function
+
+def pemberitaan_tab(berita_df, sp_df):
+    st.subheader("📰 Analisis Pemberitaan")
+    
+    if not berita_df.empty and not sp_df.empty:
+        try:
+            # Ensure date columns are datetime
+            berita_df['Tanggal'] = pd.to_datetime(berita_df['Tanggal'], errors='coerce')
+            
+            # 1. Media Coverage Metrics
+            st.subheader("Media Coverage")
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Top Media Sources by Volume
+                media_counts = berita_df['Sumber Media'].value_counts().head(10)
+                fig_media = px.bar(
+                    x=media_counts.values,
+                    y=media_counts.index,
+                    orientation='h',
+                    title="Top 10 Media Sources by Coverage Volume",
+                    labels={'x': 'Jumlah Artikel', 'y': 'Media'}
+                )
+                fig_media.update_layout(height=400)
+                st.plotly_chart(fig_media, use_container_width=True)
+            
+            with col2:
+                # Media Coverage Timeline
+                timeline = berita_df.groupby(berita_df['Tanggal'].dt.date).size().reset_index(name='COUNT')
+                fig_timeline = px.line(
+                    timeline,
+                    x='Tanggal',
+                    y='COUNT',
+                    title="Media Coverage Timeline",
+                    labels={'Tanggal': 'Tanggal', 'COUNT': 'Jumlah Artikel'}
+                )
+                fig_timeline.update_layout(height=400)
+                st.plotly_chart(fig_timeline, use_container_width=True)
+            
+            # 2. Press Release Impact Analysis
+            st.subheader("Analisis Dampak Siaran Pers")
+            
+            # Match press releases with news coverage
+            # We'll create a simplified matching by checking if the news date is within 3 days after press release
+            merged_data = []
+            for _, sp_row in sp_df.iterrows():
+                sp_date = sp_row['PUBLIKASI']
+                if pd.isna(sp_date):
+                    continue
+                    
+                sp_title = sp_row['JUDUL']
+                # Find news within 3 days after the press release
+                news_count = len(berita_df[(berita_df['Tanggal'] >= sp_date) & 
+                                          (berita_df['Tanggal'] <= sp_date + pd.Timedelta(days=3))])
+                
+                merged_data.append({
+                    'Tanggal_SP': sp_date,
+                    'Judul_SP': sp_title,
+                    'Jumlah_Berita': news_count
+                })
+                
+            impact_df = pd.DataFrame(merged_data)
+            
+            if not impact_df.empty:
+                # Sort by impact (news count)
+                impact_df = impact_df.sort_values('Jumlah_Berita', ascending=False)
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    # Top Press Releases by Media Coverage
+                    fig_impact = px.bar(
+                        impact_df.head(10),
+                        x='Jumlah_Berita',
+                        y='Judul_SP',
+                        orientation='h',
+                        title="Top 10 Siaran Pers berdasarkan Jumlah Pemberitaan",
+                        labels={'Jumlah_Berita': 'Jumlah Artikel', 'Judul_SP': 'Siaran Pers'}
+                    )
+                    fig_impact.update_layout(height=500)
+                    st.plotly_chart(fig_impact, use_container_width=True)
+                
+                with col2:
+                    # Time to Coverage Analysis
+                    # Create a scatter plot showing relationship between press release date and volume of coverage
+                    fig_time = px.scatter(
+                        impact_df,
+                        x='Tanggal_SP',
+                        y='Jumlah_Berita',
+                        size='Jumlah_Berita',
+                        hover_name='Judul_SP',
+                        title="Dampak Siaran Pers dan Waktu",
+                        labels={'Tanggal_SP': 'Tanggal Siaran Pers', 'Jumlah_Berita': 'Jumlah Pemberitaan'}
+                    )
+                    fig_time.update_layout(height=500)
+                    st.plotly_chart(fig_time, use_container_width=True)
+            
+            # 3. Media Source Distribution
+            st.subheader("Distribusi Sumber Media")
+            
+            # Create a treemap visualization of media sources
+            media_tree = berita_df['Sumber Media'].value_counts().reset_index()
+            media_tree.columns = ['Media', 'Count']
+            
+            fig_tree = px.treemap(
+                media_tree,
+                path=['Media'],
+                values='Count',
+                title="Distribusi Pemberitaan berdasarkan Sumber Media"
+            )
+            st.plotly_chart(fig_tree, use_container_width=True)
+            
+            # 4. Data Table with News Details
+            st.subheader("Detail Pemberitaan")
+            
+            # Create a filterable table with news data
+            st.dataframe(berita_df)
+            
+        except Exception as e:
+            st.error(f"Error in pemberitaan analysis: {e}")
+    else:
+        st.warning("Tidak ada data berita untuk ditampilkan.")
     
     except Exception as e:
         st.error(f"Terjadi kesalahan: {e}")
