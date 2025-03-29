@@ -116,9 +116,9 @@ def main():
                 # Buat label kustom untuk hover
                 narasumber_counts['custom_label'] = (
                     narasumber_counts['CLEAN_NARASUMBER'] + '<br>' + 
-                    'rentang=[' + narasumber_counts['Week_start'].dt.strftime('%d-%m-%Y') + ' - ' + 
-                    narasumber_counts['Week_end'].dt.strftime('%d-%m-%Y') + ']<br>' +
-                    'kemunculan=[' + narasumber_counts['COUNT'].astype(str) + '] kali'
+                    'Rentang=' + narasumber_counts['Week_start'].dt.strftime('%d-%m-%Y') + ' - ' + 
+                    narasumber_counts['Week_end'].dt.strftime('%d-%m-%Y') + '<br>' +
+                    'Frekuensi=' + narasumber_counts['COUNT'].astype(str) + ' kali'
                 )
 
                 # Top 10 Narasumber Bar Chart
@@ -126,7 +126,7 @@ def main():
                 
                 with col1:
                     # Horizontal Bar Chart for Top 10 Narasumbers, sorted in descending order
-                    sorted_narasumber_counts = narasumber_total_counts.sort_values(ascending=True).head(10)
+                    sorted_narasumber_counts = narasumber_total_counts.sort_values(ascending=False).head(10)
     
                     fig_bar = px.bar(
                         x=sorted_narasumber_counts.values, 
