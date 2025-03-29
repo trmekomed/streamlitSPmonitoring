@@ -101,25 +101,25 @@ def main():
                 # Calculate total count for each narasumber
                 narasumber_total_counts = narasumber_exploded[narasumber_exploded['CLEAN_NARASUMBER'] != '']['CLEAN_NARASUMBER'].value_counts()
 
-        # Pastikan PUBLIKASI adalah tipe datetime
-        if not pd.api.types.is_datetime64_any_dtype(narasumber_exploded['PUBLIKASI']):
-	    narasumber_exploded['PUBLIKASI'] = pd.to_datetime(narasumber_exploded['PUBLIKASI'])
+                # Pastikan PUBLIKASI adalah tipe datetime
+                if not pd.api.types.is_datetime64_any_dtype(narasumber_exploded['PUBLIKASI']):
+                    narasumber_exploded['PUBLIKASI'] = pd.to_datetime(narasumber_exploded['PUBLIKASI'])
 
-        # Tambahkan kolom Week untuk mengelompokkan berdasarkan minggu
-        narasumber_exploded['Week'] = narasumber_exploded['PUBLIKASI'].dt.to_period('W')
-        narasumber_exploded['Week_start'] = narasumber_exploded['Week'].dt.start_time
-        narasumber_exploded['Week_end'] = narasumber_exploded['Week'].dt.end_time
+                # Tambahkan kolom Week untuk mengelompokkan berdasarkan minggu
+                narasumber_exploded['Week'] = narasumber_exploded['PUBLIKASI'].dt.to_period('W')
+                narasumber_exploded['Week_start'] = narasumber_exploded['Week'].dt.start_time
+                narasumber_exploded['Week_end'] = narasumber_exploded['Week'].dt.end_time
 
-        # Hitung kemunculan per narasumber per minggu
-        narasumber_counts = narasumber_exploded[narasumber_exploded['CLEAN_NARASUMBER'] != ''].groupby(['CLEAN_NARASUMBER', 'Week', 'Week_start', 'Week_end']).size().reset_index(name='COUNT')
+                # Hitung kemunculan per narasumber per minggu
+                narasumber_counts = narasumber_exploded[narasumber_exploded['CLEAN_NARASUMBER'] != ''].groupby(['CLEAN_NARASUMBER', 'Week', 'Week_start', 'Week_end']).size().reset_index(name='COUNT')
 
-        # Buat label kustom untuk hover
-        narasumber_counts['custom_label'] = (
-        narasumber_counts['CLEAN_NARASUMBER'] + '<br>' + 
-        'rentang=[' + narasumber_counts['Week_start'].dt.strftime('%d-%m-%Y') + ' - ' + 
-        narasumber_counts['Week_end'].dt.strftime('%d-%m-%Y') + ']<br>' +
-        'kemunculan=[' + narasumber_counts['COUNT'].astype(str) + '] kali'
-        )
+                # Buat label kustom untuk hover
+                narasumber_counts['custom_label'] = (
+                    narasumber_counts['CLEAN_NARASUMBER'] + '<br>' + 
+                    'rentang=[' + narasumber_counts['Week_start'].dt.strftime('%d-%m-%Y') + ' - ' + 
+                    narasumber_counts['Week_end'].dt.strftime('%d-%m-%Y') + ']<br>' +
+                    'kemunculan=[' + narasumber_counts['COUNT'].astype(str) + '] kali'
+                )
 
                 # Top 10 Narasumber Bar Chart
                 col1, col2 = st.columns(2)
@@ -160,46 +160,46 @@ def main():
                     st.plotly_chart(fig_timeline, use_container_width=True)
 
                 # Narasumber Scatter Plot
-                narasumber_counts = narasumber_exploded[narasumber_exploded['CLEAN_NARASUMBER'] != ''].groupby(['CLEAN_NARASUMBER', 'PUBLIKASI']).size().reset_index(name='COUNT')
-                narasumber_total_counts = narasumber_counts.groupby('CLEAN_NARASUMBER')['COUNT'].sum().sort_values(ascending=False)
-
                 fig_scatter = px.scatter(
-   			 		narasumber_counts, 
-				    x='Week_start',  # Gunakan tanggal awal minggu sebagai sumbu X
-    				y='CLEAN_NARASUMBER',
-    				size='COUNT',
-    				color='CLEAN_NARASUMBER',
-    				title="Narasumber Appearances Weekly",
-    				labels={'Week_start': 'Week', 'CLEAN_NARASUMBER': 'Narasumber', 'COUNT': 'Frequency'},
-    				hover_name='custom_label',  # Gunakan label kustom untuk hover
-    				custom_data=['COUNT', 'Week_start', 'Week_end']  # Data tambahan untuk hover
-				)
+                    narasumber_counts, 
+                    x='Week_start',  # Gunakan tanggal awal minggu sebagai sumbu X
+                    y='CLEAN_NARASUMBER',
+                    size='COUNT',
+                    color='CLEAN_NARASUMBER',
+                    title="Narasumber Appearances Weekly",
+                    labels={'Week_start': 'Week', 'CLEAN_NARASUMBER': 'Narasumber', 'COUNT': 'Frequency'},
+                    hover_name='custom_label',  # Gunakan label kustom untuk hover
+                    custom_data=['COUNT', 'Week_start', 'Week_end']  # Data tambahan untuk hover
+                )
 
-				# Atur format hover
-				fig_scatter.update_traces(
-    				hovertemplate='%{hovertext}<extra></extra>'
-				)
+                # Atur format hover
+                fig_scatter.update_traces(
+                    hovertemplate='%{hovertext}<extra></extra>'
+                )
 
                 fig_scatter.update_layout(
                     showlegend=False,
                     autosize=True,
                     height=600,
                     width=None,
-					xaxis_title='Minggu',
-    				yaxis_title='Narasumber'
+                    xaxis_title='Minggu',
+                    yaxis_title='Narasumber'
                 )
 
+                # Urutkan berdasarkan total kemunculan
+                narasumber_total_counts = narasumber_counts.groupby('CLEAN_NARASUMBER')['COUNT'].sum().sort_values(ascending=False)
+                
                 fig_scatter.update_yaxes(
                     categoryorder='array', 
                     categoryarray=narasumber_total_counts.index.tolist()[::-1]
                 )
 
-				# Format sumbu X untuk menampilkan tanggal dengan lebih baik
-				fig_scatter.update_xaxes(
-    				tickformat='%d-%m-%Y',
-    				tickmode='auto',
-    				nticks=10
-				)
+                # Format sumbu X untuk menampilkan tanggal dengan lebih baik
+                fig_scatter.update_xaxes(
+                    tickformat='%d-%m-%Y',
+                    tickmode='auto',
+                    nticks=10
+                )
 
                 st.plotly_chart(fig_scatter, use_container_width=True)
                 
