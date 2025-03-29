@@ -248,6 +248,20 @@ def main():
         # Sidebar untuk filter
         st.sidebar.header("Filter")
 
+        # Filter rentang waktu
+        start_date = st.sidebar.date_input(
+            "Tanggal Mulai",
+            min_value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date(),
+            max_value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date(),
+            value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date()
+        )
+        end_date = st.sidebar.date_input(
+            "Tanggal Akhir",
+            min_value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date(),
+            max_value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date(),
+            value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date()
+        )
+
 # apus dari sini ---------------------------------------
 
         # Convert date range to a slider
