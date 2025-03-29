@@ -283,6 +283,63 @@ def main():
         # Overview - Scorecard - UPDATED to use filtered_berita
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
+
+#--------------------awak kode---------------------------
+
+        # Analisis dasar untuk text box
+        if not filtered_sp.empty and not berita_df.empty:
+            st.subheader("📊 Analisis Dasar Pemberitaan")
+    
+            # Hitung siaran pers yang memiliki berita
+            sp_with_news = []
+            sp_news_counts = {}
+            sp_media_counts = {}
+    
+            for _, sp_row in sp_df.iterrows():  # Gunakan semua siaran pers, bukan hanya yang difilter
+                sp_date = sp_row['PUBLIKASI']
+                sp_title = sp_row['JUDUL']
+        
+                if pd.isna(sp_date):
+                    continue
+            
+                # Temukan berita terkait (3 hari setelah publikasi)
+                related_news = berita_df[
+                    (berita_df['Tanggal'] >= sp_date) & 
+                    (berita_df['Tanggal'] <= sp_date + pd.Timedelta(days=3))
+                ]
+        
+                if not related_news.empty:
+                    sp_with_news.append(sp_title)
+                    sp_news_counts[sp_title] = len(related_news)
+                    sp_media_counts[sp_title] = related_news['Sumber Media'].nunique()
+    
+            # Hitung metrik
+            total_sp = len(sp_df)
+            total_sp_with_news = len(sp_with_news)
+            percentage_sp_with_news = (total_sp_with_news / total_sp * 100) if total_sp > 0 else 0
+    
+            avg_news_per_sp = sum(sp_news_counts.values()) / total_sp_with_news if total_sp_with_news > 0 else 0
+            avg_media_per_sp = sum(sp_media_counts.values()) / total_sp_with_news if total_sp_with_news > 0 else 0
+    
+            # Temukan SP dengan pemberitaan tertinggi
+            if sp_news_counts:
+                max_news_sp = max(sp_news_counts.items(), key=lambda x: x[1])
+            else:
+                max_news_sp = ("Tidak ada", 0)
+    
+            # Tampilkan analisis dalam text box
+            st.markdown(f"""
+            ### Analisis Dasar Pemberitaan
+    
+            Dari total **{total_sp} siaran pers** yang dipublikasikan, **{total_sp_with_news} siaran pers ({percentage_sp_with_news:.1f}%)** 
+            berhasil mendapatkan pemberitaan di media dalam rentang waktu 3 hari setelah publikasi. 
+    
+            Rata-rata, setiap siaran pers yang diberitakan mendapatkan **{avg_news_per_sp:.1f} berita** dari **{avg_media_per_sp:.1f} media** yang berbeda.
+            Siaran pers dengan pemberitaan tertinggi adalah "**{max_news_sp[0]}**" dengan total **{max_news_sp[1]} berita**.
+    
+            """)
+
+    #--------------------akhir kode---------------------------
         
         # Updated to use filtered_berita instead of berita_df
         col2.metric("Berita", len(filtered_berita) if not filtered_berita.empty else 0)
