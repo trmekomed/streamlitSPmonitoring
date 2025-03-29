@@ -247,32 +247,20 @@ def main():
 
         # Sidebar untuk filter
         st.sidebar.header("Filter")
-#-------------------------------------------------
-        if not sp_df.empty:
-            min_date = sp_df['PUBLIKASI'].min().date()
-            max_date = sp_df['PUBLIKASI'].max().date()
-        else:
-            min_date = datetime.now().date()
-            max_date = datetime.now().date()
 
-        # Hitung jumlah hari antara min dan max tanggal
-        date_range = (max_date - min_date).days
-
-        # Slider untuk rentang tanggal
-        days_slider = st.sidebar.slider(
-            "Rentang Waktu",
-            0, date_range, (0, date_range),
-            format=None
+        # Filter rentang waktu
+        start_date = st.sidebar.date_input(
+            "Tanggal Mulai",
+            min_value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date(),
+            max_value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date(),
+            value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date()
         )
-
-        # Konversi nilai slider kembali ke tanggal
-        start_date = min_date + timedelta(days=days_slider[0])
-        end_date = min_date + timedelta(days=days_slider[1])
-
-        # Tampilkan tanggal yang dipilih
-        st.sidebar.write(f"Tanggal Mulai: {start_date.strftime('%d %b %Y')}")
-        st.sidebar.write(f"Tanggal Akhir: {end_date.strftime('%d %b %Y')}")
-#------------------------------------------------
+        end_date = st.sidebar.date_input(
+            "Tanggal Akhir",
+            min_value=sp_df['PUBLIKASI'].min().date() if not sp_df.empty else datetime.now().date(),
+            max_value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date(),
+            value=sp_df['PUBLIKASI'].max().date() if not sp_df.empty else datetime.now().date()
+        )
 
         # Filter Siaran Pers berdasarkan rentang waktu
         filtered_sp = sp_df[
