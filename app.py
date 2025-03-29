@@ -184,9 +184,6 @@ def pemberitaan_tab(berita_df, sp_df, filtered_sp):
                     st.dataframe(filtered_berita[selected_columns])
                 else:
                     st.warning("Tidak ada data berita untuk ditampilkan.")
-                
-                # Create a filterable table with news data
-                st.dataframe(filtered_berita)
             
         except Exception as e:
             st.error(f"Error in pemberitaan analysis: {e}")
@@ -429,7 +426,15 @@ def main():
                     
                     # Tampilkan data detail
                     st.subheader("Data Siaran Pers")
-                    st.dataframe(filtered_sp)
+
+                    # Pilih kolom yang ingin ditampilkan
+                    selected_columns = ['PUBLIKASI','JUDUL', 'NARASUMBER', 'SUMBER']  # Ganti dengan kolom yang kamu inginkan
+
+                    # Create a filterable table with specific columns only
+                    if not filtered_sp.empty:
+                        st.dataframe(filtered_sp[selected_columns])
+                    else:
+                        st.warning("Tidak ada data berita untuk ditampilkan.")
                 
                 except Exception as name_error:
                     st.error(f"Error processing NARASUMBER: {name_error}")
