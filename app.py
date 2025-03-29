@@ -175,6 +175,15 @@ def pemberitaan_tab(berita_df, sp_df, filtered_sp):
                 
                 # 4. Data Table with News Details
                 st.subheader("Detail Pemberitaan")
+
+                # Pilih kolom yang ingin ditampilkan
+                selected_columns = ['Judul Berita', 'Tanggal', 'Sumber Media', 'Link Berita']  # Ganti dengan kolom yang kamu inginkan
+
+                # Create a filterable table with specific columns only
+                if not filtered_berita.empty:
+                    st.dataframe(filtered_berita[selected_columns])
+                else:
+                    st.warning("Tidak ada data berita untuk ditampilkan.")
                 
                 # Create a filterable table with news data
                 st.dataframe(filtered_berita)
