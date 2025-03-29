@@ -184,6 +184,43 @@ def pemberitaan_tab(berita_df, sp_df, filtered_sp):
     else:
         st.warning("Tidak ada data berita untuk ditampilkan.")
 
+def get_filtered_berita(berita_df, filtered_sp):
+    """
+    Helper function to get news related to the selected press releases.
+    This will be used for both the scorecard and pemberitaan tab.
+    """
+    # Ensure date columns are datetime
+    berita_df['Tanggal'] = pd.to_datetime(berita_df['Tanggal'], errors='coerce')
+    
+    # If no press releases selected, return empty dataframe
+    if filtered_sp.empty:
+        return berita_df
+    
+    # Filter berita yang relevan dengan siaran pers yang dipilih
+    filtered_berita_indices = []
+    
+    for _, sp_row in filtered_sp.iterrows():
+        sp_date = sp_row['PUBLIKASI']
+        if pd.isna(sp_date):
+            continue
+            
+        # Temukan berita dalam rentang 3 hari setelah siaran pers
+        relevant_news = berita_df[
+            (berita_df['Tanggal'] >= sp_date) & 
+            (berita_df['Tanggal'] <= sp_date + pd.Timedelta(days=3))
+        ]
+        
+        filtered_berita_indices.extend(relevant_news.index.tolist())
+    
+    # Hapus duplikat indeks berita
+    filtered_berita_indices = list(set(filtered_berita_indices))
+    
+    # Filter berita berdasarkan indeks yang sudah dikumpulkan
+    if filtered_berita_indices:
+        return berita_df.loc[filtered_berita_indices]
+    else:
+        return pd.DataFrame(columns=berita_df.columns)
+
 def main():
     st.set_page_config(layout="wide", page_title="v1.1 Dashboard Monitoring")
     st.title("DASHBOARD MONITORING 𓀛")
@@ -233,12 +270,17 @@ def main():
         if selected_siaran_pers:
             filtered_sp = filtered_sp[filtered_sp['JUDUL'].isin(selected_siaran_pers)]
 
+        # Get filtered news based on the selected press releases
+        filtered_berita = get_filtered_berita(berita_df, filtered_sp)
+
         st.subheader("💡 Overview")
-        # Overview - Scorecard
+        # Overview - Scorecard - UPDATED to use filtered_berita
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
-        col2.metric("Berita", len(berita_df) if not berita_df.empty else 0)
-        col3.metric("Media", berita_df['Sumber Media'].nunique() if 'Sumber Media' in berita_df.columns and not berita_df.empty else 0)
+        
+        # Updated to use filtered_berita instead of berita_df
+        col2.metric("Berita", len(filtered_berita) if not filtered_berita.empty else 0)
+        col3.metric("Media", filtered_berita['Sumber Media'].nunique() if 'Sumber Media' in filtered_berita.columns and not filtered_berita.empty else 0)
         
         # Add null check and debug information for NARASUMBER
         if 'NARASUMBER' in filtered_sp.columns:
@@ -385,7 +427,7 @@ def main():
             else:
                 st.warning("Tidak ada data untuk ditampilkan.")
         
-        # Tab 2: Pemberitaan - Sekarang meneruskan filtered_sp
+        # Tab 2: Pemberitaan - Use filtered_berita to stay consistent
         with tab2:
             pemberitaan_tab(berita_df, sp_df, filtered_sp)
 
