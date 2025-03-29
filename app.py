@@ -63,7 +63,7 @@ def pemberitaan_tab(berita_df, sp_df, filtered_sp):
             st.info(f"Menampilkan {len(filtered_berita)} berita yang relevan dengan Siaran Pers yang dipilih")
             
             # 1. Media Coverage Metrics
-            st.subheader("Media Coverage")
+            st.subheader("📈 Media Coverage")
             if not filtered_berita.empty:
                 col1, col2 = st.columns(2)
                 
