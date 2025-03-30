@@ -287,39 +287,30 @@ def main():
 #--------------------awak kode---------------------------
 
         # Analisis dasar untuk text box
-        if not filtered_sp.empty and not berita_df.empty:
+        if not berita_df.empty:
             st.subheader("📊 Analisis Dasar Pemberitaan")
     
-            # Hitung siaran pers yang memiliki berita
-            sp_with_news = []
-            sp_news_counts = {}
-            sp_media_counts = {}
-    
-            for _, sp_row in sp_df.iterrows():  # Gunakan semua siaran pers, bukan hanya yang difilter
-                sp_date = sp_row['PUBLIKASI']
-                sp_title = sp_row['JUDUL']
-        
-                if pd.isna(sp_date):
-                    continue
-            
-                # Temukan berita terkait (3 hari setelah publikasi)
-                related_news = berita_df[
-                    (berita_df['Tanggal'] >= sp_date) & 
-                    (berita_df['Tanggal'] <= sp_date + pd.Timedelta(days=3))
-                ]
-        
-                if not related_news.empty:
-                    sp_with_news.append(sp_title)
-                    sp_news_counts[sp_title] = len(related_news)
-                    sp_media_counts[sp_title] = related_news['Sumber Media'].nunique()
-    
-            # Hitung metrik
-            total_sp = len(sp_df)
+            # 1. Hitung siaran pers yang memiliki berita (nilai unik di kolom Siaran Pers)
+            sp_with_news = berita_df['Siaran Pers'].unique()
             total_sp_with_news = len(sp_with_news)
+    
+            # Total siaran pers di dataset
+            total_sp = len(sp_df)
+    
+            # Persentase siaran pers yang mendapat pemberitaan
             percentage_sp_with_news = (total_sp_with_news / total_sp * 100) if total_sp > 0 else 0
     
-            avg_news_per_sp = sum(sp_news_counts.values()) / total_sp_with_news if total_sp_with_news > 0 else 0
-            avg_media_per_sp = sum(sp_media_counts.values()) / total_sp_with_news if total_sp_with_news > 0 else 0
+            # 2. Hitung jumlah berita per siaran pers
+            sp_news_counts = berita_df.groupby('Siaran Pers').size().to_dict()
+    
+            # 3. Rata-rata pemberitaan per siaran pers (hanya yang memiliki berita)
+            avg_news_per_sp = berita_df.groupby('Siaran Pers').size().mean() if total_sp_with_news > 0 else 0
+    
+            # 4. Hitung jumlah media unik per siaran pers
+            sp_media_counts = berita_df.groupby('Siaran Pers')['Sumber Media'].nunique().to_dict()
+    
+            # Rata-rata media per siaran pers
+            avg_media_per_sp = berita_df.groupby('Siaran Pers')['Sumber Media'].nunique().mean() if total_sp_with_news > 0 else 0
     
             # Temukan SP dengan pemberitaan tertinggi
             if sp_news_counts:
@@ -327,16 +318,23 @@ def main():
             else:
                 max_news_sp = ("Tidak ada", 0)
     
+            # Temukan SP dengan coverage media tertinggi
+            if sp_media_counts:
+                max_media_sp = max(sp_media_counts.items(), key=lambda x: x[1])
+            else:
+                max_media_sp = ("Tidak ada", 0)
+    
             # Tampilkan analisis dalam text box
             st.markdown(f"""
-            ### Analisis Dasar Pemberitaan
+            #### Analisis Dasar Pemberitaan
     
             Dari total **{total_sp} siaran pers** yang dipublikasikan, **{total_sp_with_news} siaran pers ({percentage_sp_with_news:.1f}%)** 
-            berhasil mendapatkan pemberitaan di media dalam rentang waktu 3 hari setelah publikasi. 
+            berhasil mendapatkan pemberitaan di media. 
     
             Rata-rata, setiap siaran pers yang diberitakan mendapatkan **{avg_news_per_sp:.1f} berita** dari **{avg_media_per_sp:.1f} media** yang berbeda.
-            Siaran pers dengan pemberitaan tertinggi adalah "**{max_news_sp[0]}**" dengan total **{max_news_sp[1]} berita**.
+            Siaran pers dengan pemberitaan tertinggi adalah "**{max_news_sp[0]}**" dengan total **{max_news_sp[1]} berita** yang ditulis oleh berbagai media.
     
+            Siaran pers "**{max_media_sp[0]}**" mendapatkan liputan terluas dengan **{max_media_sp[1]} media** berbeda yang memberitakannya.
             """)
 
     #--------------------akhir kode---------------------------
