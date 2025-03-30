@@ -284,33 +284,31 @@ def main():
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Siaran Pers", filtered_sp['JUDUL'].nunique() if not filtered_sp.empty else 0)
 
-#--------------------awak kode---------------------------
-
         # Analisis dasar untuk text box
-        if not berita_df.empty:
+        if not filtered_berita.empty:
             st.subheader("📊 Analisis Dasar Pemberitaan")
     
             # 1. Hitung siaran pers yang memiliki berita (nilai unik di kolom Siaran Pers)
-            sp_with_news = berita_df['Siaran Pers'].unique()
+            sp_with_news = filtered_berita['Siaran Pers'].unique()
             total_sp_with_news = len(sp_with_news)
     
-            # Total siaran pers di dataset
-            total_sp = len(sp_df)
+            # Total siaran pers di dataset yang telah difilter
+            total_sp = len(filtered_sp) if not filtered_sp.empty else 0
     
             # Persentase siaran pers yang mendapat pemberitaan
             percentage_sp_with_news = (total_sp_with_news / total_sp * 100) if total_sp > 0 else 0
     
             # 2. Hitung jumlah berita per siaran pers
-            sp_news_counts = berita_df.groupby('Siaran Pers').size().to_dict()
+            sp_news_counts = filtered_berita.groupby('Siaran Pers').size().to_dict()
     
             # 3. Rata-rata pemberitaan per siaran pers (hanya yang memiliki berita)
-            avg_news_per_sp = berita_df.groupby('Siaran Pers').size().mean() if total_sp_with_news > 0 else 0
+            avg_news_per_sp = filtered_berita.groupby('Siaran Pers').size().mean() if total_sp_with_news > 0 else 0
     
             # 4. Hitung jumlah media unik per siaran pers
-            sp_media_counts = berita_df.groupby('Siaran Pers')['Sumber Media'].nunique().to_dict()
+            sp_media_counts = filtered_berita.groupby('Siaran Pers')['Sumber Media'].nunique().to_dict()
     
             # Rata-rata media per siaran pers
-            avg_media_per_sp = berita_df.groupby('Siaran Pers')['Sumber Media'].nunique().mean() if total_sp_with_news > 0 else 0
+            avg_media_per_sp = filtered_berita.groupby('Siaran Pers')['Sumber Media'].nunique().mean() if total_sp_with_news > 0 else 0
     
             # Temukan SP dengan pemberitaan tertinggi
             if sp_news_counts:
@@ -328,7 +326,7 @@ def main():
             st.markdown(f"""
             #### Analisis Dasar Pemberitaan
     
-            Monitoring pemberitaan dilakukan terhadap **{total_sp_with_news} siaran pers atau {percentage_sp_with_news:.1f}%** dari total **{total_sp} siaran pers** . 
+            Monitoring pemberitaan dilakukan terhadap **{total_sp_with_news} siaran pers atau {percentage_sp_with_news:.1f}%** dari total **{total_sp} siaran pers** yang difilter. 
     
             Setiap siaran pers memiliki rata-rata pemberitaan sebanyak **{avg_news_per_sp:.1f} berita** dari **{avg_media_per_sp:.1f} media** yang berbeda.
             
@@ -340,9 +338,9 @@ def main():
             "**{max_media_sp[0]}**"
             dengan **{max_media_sp[1]} media** berbeda yang memberitakannya.
             """)
-
-    #--------------------akhir kode---------------------------
-        
+        else:
+            st.warning("Tidak ada data berita yang sesuai dengan filter untuk ditampilkan.")
+      
         # Updated to use filtered_berita instead of berita_df
         col2.metric("Berita", len(filtered_berita) if not filtered_berita.empty else 0)
         col3.metric("Media", filtered_berita['Sumber Media'].nunique() if 'Sumber Media' in filtered_berita.columns and not filtered_berita.empty else 0)
