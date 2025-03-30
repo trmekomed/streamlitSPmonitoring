@@ -566,4 +566,140 @@ def main():
                         all_nodes = list(set(flow_counts['CLEAN_NARASUMBER'].tolist() + flow_counts['JUDUL'].tolist()))
                         
                         # Create source-target mapping
-                        source_indices = [all_nodes.index(ns) for ns in flow_counts['
+                        source_indices = [all_nodes.index(ns) for ns in flow_counts['CLEAN_NARASUMBER']]
+                        target_indices = [all_nodes.index(sp) for sp in flow_counts['JUDUL']]
+                        
+                        # Create Sankey diagram
+                        fig_sankey = go.Figure(data=[go.Sankey(
+                            node=dict(
+                                pad=15,
+                                thickness=20,
+                                line=dict(color="black", width=0.5),
+                                label=all_nodes
+                            ),
+                            link=dict(
+                                source=source_indices,
+                                target=target_indices,
+                                value=flow_counts['Count'].tolist()
+                            )
+                        )])
+                        
+                        fig_sankey.update_layout(title_text="Alur Narasumber ke Siaran Pers", height=600)
+                        st.plotly_chart(fig_sankey, use_container_width=True)
+                    else:
+                        st.warning("Tidak cukup data untuk membuat diagram Sankey.")
+                    
+                    # Tampilkan tabel siaran pers
+                    st.subheader("Daftar Siaran Pers")
+                    st.dataframe(filtered_sp[['JUDUL', 'PUBLIKASI', 'NARASUMBER']])
+                    
+                except Exception as e:
+                    st.error(f"Error in Siaran Pers analysis: {e}")
+            else:
+                st.warning("Tidak ada siaran pers yang sesuai dengan filter yang dipilih.")
+        
+        # Tab 2: Pemberitaan analysis with Sankey from SP → Media → Volume
+        with tab2:
+            pemberitaan_tab(berita_df, sp_df, filtered_sp)
+            
+            # Create Sankey diagram for SP → Media → Volume
+            st.subheader("Alur Siaran Pers ke Media ke Volume")
+            
+            # Get filtered news based on selected press releases
+            filtered_berita = get_filtered_berita(berita_df, filtered_sp)
+            
+            if not filtered_berita.empty and 'Siaran Pers' in filtered_berita.columns:
+                # Get top siaran pers for clarity
+                top_sp = filtered_berita['Siaran Pers'].value_counts().head(5).index.tolist()
+                
+                # Get top media sources
+                top_media = filtered_berita['Sumber Media'].value_counts().head(8).index.tolist()
+                
+                # Filter data for the Sankey diagram
+                sankey_data = filtered_berita[
+                    (filtered_berita['Siaran Pers'].isin(top_sp)) & 
+                    (filtered_berita['Sumber Media'].isin(top_media))
+                ]
+                
+                if not sankey_data.empty:
+                    # Count SP to Media flows
+                    flow_sp_media = sankey_data.groupby(['Siaran Pers', 'Sumber Media']).size().reset_index(name='Count')
+                    
+                    # Create volume category nodes for media
+                    volume_categories = ['Low (1-2)', 'Medium (3-5)', 'High (6+)']
+                    flow_media_volume = []
+                    
+                    for media in top_media:
+                        media_count = sankey_data[sankey_data['Sumber Media'] == media].shape[0]
+                        if media_count <= 2:
+                            volume_cat = 'Low (1-2)'
+                        elif media_count <= 5:
+                            volume_cat = 'Medium (3-5)'
+                        else:
+                            volume_cat = 'High (6+)'
+                        
+                        flow_media_volume.append({
+                            'Sumber Media': media,
+                            'Volume': volume_cat,
+                            'Count': media_count
+                        })
+                    
+                    flow_media_volume_df = pd.DataFrame(flow_media_volume)
+                    
+                    # Create complete node list
+                    all_nodes = list(set(
+                        flow_sp_media['Siaran Pers'].tolist() + 
+                        flow_sp_media['Sumber Media'].tolist() + 
+                        volume_categories
+                    ))
+                    
+                    # Create source-target mappings for SP -> Media
+                    source_sp_media = [all_nodes.index(sp) for sp in flow_sp_media['Siaran Pers']]
+                    target_sp_media = [all_nodes.index(media) for media in flow_sp_media['Sumber Media']]
+                    values_sp_media = flow_sp_media['Count'].tolist()
+                    
+                    # Create source-target mappings for Media -> Volume
+                    source_media_volume = [all_nodes.index(row['Sumber Media']) for _, row in flow_media_volume_df.iterrows()]
+                    target_media_volume = [all_nodes.index(row['Volume']) for _, row in flow_media_volume_df.iterrows()]
+                    values_media_volume = flow_media_volume_df['Count'].tolist()
+                    
+                    # Combine all links
+                    sources = source_sp_media + source_media_volume
+                    targets = target_sp_media + target_media_volume
+                    values = values_sp_media + values_media_volume
+                    
+                    # Create Sankey diagram
+                    fig_sankey = go.Figure(data=[go.Sankey(
+                        node=dict(
+                            pad=15,
+                            thickness=20,
+                            line=dict(color="black", width=0.5),
+                            label=all_nodes,
+                            color="blue"  # Use blue color theme
+                        ),
+                        link=dict(
+                            source=sources,
+                            target=targets,
+                            value=values,
+                            color="rgba(100, 149, 237, 0.6)"  # Use light blue with transparency
+                        )
+                    )])
+                    
+                    fig_sankey.update_layout(
+                        title_text="Alur Siaran Pers → Media → Volume", 
+                        height=700,
+                        font=dict(size=12)
+                    )
+                    st.plotly_chart(fig_sankey, use_container_width=True)
+                else:
+                    st.warning("Tidak cukup data untuk membuat diagram Sankey.")
+            else:
+                st.warning("Tidak ada data berita yang sesuai untuk ditampilkan.")
+            
+    except Exception as e:
+        st.error(f"Error loading or processing data: {e}")
+        import traceback
+        st.error(traceback.format_exc())
+
+if __name__ == "__main__":
+    main()
