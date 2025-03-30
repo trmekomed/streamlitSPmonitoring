@@ -328,10 +328,10 @@ def main():
             st.markdown(f"""
             #### Analisis Dasar Pemberitaan
     
-            Dari total **{total_sp} siaran pers** yang dipublikasikan, **{total_sp_with_news} siaran pers ({percentage_sp_with_news:.1f}%)** 
-            berhasil mendapatkan pemberitaan di media. 
+            Monitoring pemberitaan dilakukan terhadap **{total_sp_with_news} siaran pers atau {percentage_sp_with_news:.1f}%** dari total **{total_sp} siaran pers** . 
     
-            Rata-rata, setiap siaran pers yang diberitakan mendapatkan **{avg_news_per_sp:.1f} berita** dari **{avg_media_per_sp:.1f} media** yang berbeda.
+            Setiap siaran pers memiliki rata-rata pemberitaan sebanyak **{avg_news_per_sp:.1f} berita** dari **{avg_media_per_sp:.1f} media** yang berbeda.
+            
             Siaran pers dengan pemberitaan tertinggi adalah "**{max_news_sp[0]}**" dengan total **{max_news_sp[1]} berita** yang ditulis oleh berbagai media.
     
             Siaran pers "**{max_media_sp[0]}**" mendapatkan liputan terluas dengan **{max_media_sp[1]} media** berbeda yang memberitakannya.
