@@ -248,6 +248,12 @@ def main():
         # Sidebar untuk filter
         st.sidebar.header("Filter")
 
+        # Add reset button
+        if st.sidebar.button("Reset Filters", key="reset_filters"):
+            # This will trigger a rerun of the app with default parameters
+            # You don't need to add any code here as the rerun will use the default values
+            st.experimental_rerun()
+
         # Filter rentang waktu
         start_date = st.sidebar.date_input(
             "Tanggal Mulai",
