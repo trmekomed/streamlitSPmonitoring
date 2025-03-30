@@ -332,9 +332,13 @@ def main():
     
             Setiap siaran pers memiliki rata-rata pemberitaan sebanyak **{avg_news_per_sp:.1f} berita** dari **{avg_media_per_sp:.1f} media** yang berbeda.
             
-            Siaran pers dengan pemberitaan tertinggi adalah "**{max_news_sp[0]}**" dengan total **{max_news_sp[1]} berita** yang ditulis oleh berbagai media.
+            Siaran pers dengan pemberitaan tertinggi:
+            "**{max_news_sp[0]}**"
+            dengan total **{max_news_sp[1]} berita** yang ditulis oleh berbagai media.
     
-            Siaran pers "**{max_media_sp[0]}**" mendapatkan liputan terluas dengan **{max_media_sp[1]} media** berbeda yang memberitakannya.
+            Siaran pers dengan liputan terluas:
+            "**{max_media_sp[0]}**"
+            dengan **{max_media_sp[1]} media** berbeda yang memberitakannya.
             """)
 
     #--------------------akhir kode---------------------------
