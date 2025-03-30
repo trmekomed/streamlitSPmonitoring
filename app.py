@@ -230,7 +230,7 @@ def get_filtered_berita(berita_df, filtered_sp):
 def main():
     st.set_page_config(layout="wide", page_title="v1.1 Dashboard Monitoring")
     st.title("DASHBOARD MONITORING 𓀛")
-    st.write("Dashboard ini dalam pengembangan, saat ini data yang disajikan adalah Siaran Pers yang didiseminasi oleh Komdigi dan Monitoring pemuatan beritanya")
+    st.write("Dashboard ini dalam pengembangan, uhuuy")
 
     # Load data
     try:
