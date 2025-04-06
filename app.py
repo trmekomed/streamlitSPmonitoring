@@ -42,7 +42,7 @@ def get_filtered_berita(berita_df, filtered_sp):
         # IMPORTANT FIX: Add check for 'Siaran Pers' column to match the title
         relevant_news = berita_df[
             (berita_df['Tanggal'] >= sp_date) & 
-            (berita_df['Tanggal'] <= sp_date + pd.Timedelta(days=3)) &
+            (berita_df['Tanggal'] <= sp_date + pd.Timedelta(days=7)) &
             (berita_df['Siaran Pers'] == sp_title)  # Match the exact SP title
         ]
         
